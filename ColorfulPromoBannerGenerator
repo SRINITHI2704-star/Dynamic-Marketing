@@ -1,0 +1,137 @@
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.io.File;
+import javax.imageio.ImageIO;
+import java.awt.image.BufferedImage;
+import java.io.IOException;
+
+public class ColorfulPromoBannerGenerator extends JFrame {
+    private JTextField productField, offerField, colorField;
+    private JButton uploadImageButton, generateButton;
+    private JLabel bannerLabel;
+    private BufferedImage productImage;
+
+    public ColorfulPromoBannerGenerator() {
+        // Set up the window
+        setTitle("AI Colorful Promo Banner Generator");
+        setSize(800, 600);
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setLayout(new GridLayout(5, 2));
+
+        // Input fields for product name, offer, and color
+        add(new JLabel("Product Name:"));
+        productField = new JTextField();
+        add(productField);
+
+        add(new JLabel("Promotional Offer:"));
+        offerField = new JTextField();
+        add(offerField);
+
+        add(new JLabel("Theme Color (e.g., #FF5733):"));
+        colorField = new JTextField();
+        add(colorField);
+
+        // Button to upload product image
+        uploadImageButton = new JButton("Upload Product Image");
+        add(uploadImageButton);
+        uploadImageButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                JFileChooser fileChooser = new JFileChooser();
+                int result = fileChooser.showOpenDialog(null);
+                if (result == JFileChooser.APPROVE_OPTION) {
+                    File selectedFile = fileChooser.getSelectedFile();
+                    try {
+                        productImage = ImageIO.read(selectedFile);
+                    } catch (IOException ioException) {
+                        ioException.printStackTrace();
+                    }
+                }
+            }
+        });
+
+        // Button to generate the promotional banner
+        generateButton = new JButton("Generate Colorful Banner");
+        add(generateButton);
+        generateButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                generateColorfulBanner();
+            }
+        });
+
+        // Label to display the generated banner
+        bannerLabel = new JLabel();
+        add(bannerLabel);
+    }
+
+    // Function to generate a colorful banner
+    private void generateColorfulBanner() {
+        String productName = productField.getText();
+        String promotionalOffer = offerField.getText();
+        String themeColor = colorField.getText();
+
+        // Create a banner image with a larger size
+        int bannerWidth = 800;
+        int bannerHeight = 400;
+        BufferedImage banner = new BufferedImage(bannerWidth, bannerHeight, BufferedImage.TYPE_INT_ARGB);
+        Graphics2D g = banner.createGraphics();
+
+        // Set the background color using a gradient
+        Color bgColor;
+        try {
+            bgColor = Color.decode(themeColor);
+        } catch (Exception e) {
+            bgColor = Color.WHITE; // default color if invalid input
+        }
+        GradientPaint gradient = new GradientPaint(0, 0, bgColor, bannerWidth, bannerHeight, Color.WHITE, true);
+        g.setPaint(gradient);
+        g.fillRect(0, 0, bannerWidth, bannerHeight);
+
+        // Draw a border
+        g.setColor(Color.BLACK);
+        g.setStroke(new BasicStroke(5));
+        g.drawRect(0, 0, bannerWidth - 1, bannerHeight - 1);
+
+        // Draw the product image on the banner
+        if (productImage != null) {
+            g.drawImage(productImage, 50, 150, 150, 150, null);
+        }
+
+        // Add a colorful rectangle to highlight the product name
+        g.setColor(new Color(255, 255, 102)); // Light Yellow
+        g.fillRoundRect(250, 100, 400, 50, 30, 30);
+
+        // Add the product name text
+        g.setColor(Color.BLUE);
+        g.setFont(new Font("Arial", Font.BOLD, 30));
+        g.drawString(productName, 270, 135);
+
+        // Add promotional offer text with a different font and color
+        g.setColor(Color.RED);
+        g.setFont(new Font("Comic Sans MS", Font.BOLD, 25));
+        g.drawString(promotionalOffer, 270, 180);
+
+        // Add decorative shapes (circles)
+        g.setColor(Color.MAGENTA);
+        g.fillOval(650, 50, 100, 100);
+
+        g.setColor(Color.GREEN);
+        g.fillOval(600, 200, 150, 150);
+
+        // Display the final banner
+        bannerLabel.setIcon(new ImageIcon(banner));
+
+        // Clean up
+        g.dispose();
+    }
+
+    public static void main(String[] args) {
+        SwingUtilities.invokeLater(() -> {
+            ColorfulPromoBannerGenerator frame = new ColorfulPromoBannerGenerator();
+            frame.setVisible(true);
+        });
+    }
+}
